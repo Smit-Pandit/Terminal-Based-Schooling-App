@@ -1,0 +1,2 @@
+C001|S001|Schedule clash with lab|Pending
+C1002|S001|maze arahe|Resolved

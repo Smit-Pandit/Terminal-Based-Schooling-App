@@ -1,0 +1,3 @@
+S1001|Aryan Goyal|iron@student.com|1234|1|CS102|CS101:F,CS100:A,
+S1002|Pandit Smit|smit@student.com|1234|1||
+S1003|Sharma Bhavya |bhavya@student.com|1234|2|CS202|
