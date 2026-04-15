@@ -23,26 +23,16 @@ public class SchoolAPP {
         loadComplaints();
     }
 
-    public static void main(String[] args) {
-        try {
-            clear();
-            System.out.println("Welcome to the School App");
-            wait(550);
-            while (true) {
-                System.out.println("\n1. Enter the Application");
-                System.out.println("2. Exit the Application\n");
-                int choice = sc.nextInt();
-                if (choice == 2) {
-                    saveAllData();
-                    System.out.println("All changes saved. Goodbye!");
-                    break;
-                }
-                loginScreen();
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Exiting application.");
-        }
-    }
+   public static void main(String[] args) {
+    javax.swing.SwingUtilities.invokeLater(() -> {
+        loadStudents();
+        loadProfessors();
+        loadCourses();
+        loadComplaints();
+
+        new LoginFrame();
+    });
+}
 
     // for asthetics
     public static void clear() {

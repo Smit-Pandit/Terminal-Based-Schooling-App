@@ -1,6 +1,9 @@
 
+import java.awt.*;
 import java.util.ArrayList;
-import java.util.InputMismatchException;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class Administrator extends User {
 
@@ -9,262 +12,325 @@ public class Administrator extends User {
     }
 
     @Override
-    void showMenu() {
-        try {
-            while (true) {
+void showMenu() {
+    JFrame frame = new JFrame("Admin Menu");
+    frame.setSize(400, 400);
+    frame.setLayout(new GridLayout(6, 1, 10, 10));
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-                System.out.println("\nADMIN MENU");
-                System.out.println("1. Manage Course Catalog (add/delete)");
-                System.out.println("2. Manage Student Records (update grades)");
-                System.out.println("3. Assign Professors to Courses");
-                System.out.println("4. Handle Complaints");
-                System.out.println("5. Logout");
+    JButton b1 = new JButton("Manage Course Catalog");
+    JButton b2 = new JButton("Manage Student Records");
+    JButton b3 = new JButton("Assign Professors");
+    JButton b4 = new JButton("Handle Complaints");
+    JButton b5 = new JButton("Logout");
 
-                int choice = SchoolAPP.sc.nextInt();
+    b1.addActionListener(e -> manageCourse());
+    b2.addActionListener(e -> manageStudentRecords());
+    b3.addActionListener(e -> manageProfessors());
+    b4.addActionListener(e -> manageComplaints());
 
-                SchoolAPP.clear();
-                SchoolAPP.sc.nextLine();
-                SchoolAPP.wait(400);
+    b5.addActionListener(e -> {
+        SchoolAPP.currentUser = null;
+        frame.dispose();
+    });
 
-                switch (choice) {
-                    case 1 ->
-                        manageCourse();
-                    case 2 ->
-                        manageStudentRecords();
-                    case 3 ->
-                        manageProfessors();
-                    case 4 ->
-                        manageComplaints();
-                    case 5 -> {
-                        SchoolAPP.currentUser = null;
-                        return;
-                    }
-                    default ->
-                        System.out.println("Invalid option.");
-                }
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Returning to menu.");
-        }
-    }
+    frame.add(b1);
+    frame.add(b2);
+    frame.add(b3);
+    frame.add(b4);
+    frame.add(b5);
+
+    frame.setVisible(true);
+}
 
     private void manageCourse() {
-        try {
 
-            SchoolAPP.clear();
-            SchoolAPP.wait(300);
+    String[] options = {
+            "View All Courses",
+            "Add New Course",
+            "Delete Course"
+    };
 
-            System.out.println("\n1. View all courses");
-            System.out.println("2. Add new course");
-            System.out.println("3. Delete course");
+    String choice = (String) JOptionPane.showInputDialog(
+            null,
+            "Manage Course Catalog",
+            "Course Catalog",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            options,
+            options[0]
+    );
 
-            int ch = SchoolAPP.sc.nextInt();
+    if (choice == null) return;
 
-            switch (ch) {
-                case 1 -> {
-                    //show all courses
-                    for (Course c : SchoolAPP.courses) {
-                        System.out.println(c.courseCode + " | " + c.title + " | Semester " + c.semester);
-                    }
-                }
-                case 2 -> {
-                    //takes the data and create the object
-                    System.out.print("Course code: ");
-                    String code = SchoolAPP.sc.nextLine();
+    switch (choice) {
 
-                    System.out.print("Title: ");
-                    String title = SchoolAPP.sc.nextLine();
+        case "View All Courses" -> {
+            StringBuilder sb = new StringBuilder();
 
-                    System.out.print("Professor ID: ");
-                    String pid = SchoolAPP.sc.nextLine();
-
-                    System.out.print("Credits (2/4): ");
-                    int cr = SchoolAPP.sc.nextInt();
-                    SchoolAPP.sc.nextLine();
-
-                    System.out.print("Semester: ");
-                    int sem = SchoolAPP.sc.nextInt();
-                    SchoolAPP.sc.nextLine();
-
-                    System.out.print("Timings: ");
-                    String time = SchoolAPP.sc.nextLine();
-
-                    System.out.print("Location: ");
-                    String loc = SchoolAPP.sc.nextLine();
-
-                    System.out.print("Syllabus: ");
-                    String syllabus = SchoolAPP.sc.nextLine();
-
-                    System.out.print("Enrollment Limit: ");
-                    int limit = SchoolAPP.sc.nextInt();
-                    SchoolAPP.sc.nextLine();
-
-                    System.out.print("Office Hours: ");
-                    String officeHours = SchoolAPP.sc.nextLine();
-
-                    SchoolAPP.courses.add(new Course(code, title, pid, cr, sem, time, loc, new ArrayList<>(), syllabus, limit, officeHours));
-                    System.out.println("Course added.");
-                }
-                case 3 -> {
-                    for (Course c : SchoolAPP.courses) {
-                        System.out.println(c.courseCode + " | " + c.title + " | Semester " + c.semester);
-                    }
-                    //remove from arraylist
-                    System.out.print("Course code to delete: ");
-                    String code = SchoolAPP.sc.nextLine();
-                    SchoolAPP.courses.removeIf(c -> c.courseCode.equalsIgnoreCase(code));
-                    System.out.println("Deleted if existed.");
-                }
-                default -> {
-                    System.out.println("Invalid Option");
-                }
+            for (Course c : SchoolAPP.courses) {
+                sb.append(c.courseCode)
+                  .append(" | ")
+                  .append(c.title)
+                  .append(" | Semester ")
+                  .append(c.semester)
+                  .append("\n");
             }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Returning to menu.");
+
+            JOptionPane.showMessageDialog(null, sb.toString());
         }
-    }
 
-    private void manageStudentRecords() {
+        case "Add New Course" -> {
+            try {
+                String code = JOptionPane.showInputDialog("Course Code:");
+                String title = JOptionPane.showInputDialog("Title:");
+                String pid = JOptionPane.showInputDialog("Professor ID:");
+                int cr = Integer.parseInt(JOptionPane.showInputDialog("Credits:"));
+                int sem = Integer.parseInt(JOptionPane.showInputDialog("Semester:"));
+                String time = JOptionPane.showInputDialog("Timings:");
+                String loc = JOptionPane.showInputDialog("Location:");
+                String syllabus = JOptionPane.showInputDialog("Syllabus:");
+                int limit = Integer.parseInt(JOptionPane.showInputDialog("Enrollment Limit:"));
+                String office = JOptionPane.showInputDialog("Office Hours:");
 
-        SchoolAPP.clear();
-        SchoolAPP.wait(300);
+                SchoolAPP.courses.add(
+                        new Course(code, title, pid, cr, sem, time, loc,
+                                new ArrayList<>(), syllabus, limit, office)
+                );
 
-        System.out.println("\n1. View All Students");
-        System.out.println("2. Update Student Personal Info");
-        System.out.println("3. Update Student Grades");
-        System.out.print("Choose option: ");
-        int opt = SchoolAPP.sc.nextInt();
-        SchoolAPP.sc.nextLine();
+                JOptionPane.showMessageDialog(null, "Course Added Successfully!");
 
-        switch (opt) {
-            case 1 -> {
-                // view all students
-                for (Student s : SchoolAPP.students) {
-                    System.out.println(s.id + " | " + s.name + " | " + s.email + " | Semester " + s.currentSemester);
-                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Invalid Input!");
             }
-            case 2 -> {
-                // update personal info
-                System.out.print("Enter Student ID: ");
-                String sid = SchoolAPP.sc.nextLine();
-                Student s = SchoolAPP.findStudentById(sid);
-                if (s == null) {
-                    System.out.println("Student not found.");
-                    return;
-                }
-                System.out.print("New Name : ");
-                String newName = SchoolAPP.sc.nextLine().trim();
-                if (!newName.isEmpty()) {
-                    s.name = newName;
-                }
-                System.out.print("New Email : ");
-                String newEmail = SchoolAPP.sc.nextLine().trim();
-                if (!newEmail.isEmpty()) {
-                    s.email = newEmail;
-                }
-                System.out.println("Personal info updated.");
+        }
+
+        case "Delete Course" -> {
+            ArrayList<String> codes = new ArrayList<>();
+
+            for (Course c : SchoolAPP.courses) {
+                codes.add(c.courseCode);
             }
-            case 3 -> {
-                // update grades
-                System.out.print("Enter Student ID: ");
-                String sid = SchoolAPP.sc.nextLine();
-                Student s = SchoolAPP.findStudentById(sid);
-                if (s == null) {
-                    System.out.println("Student not found.");
-                    return;
-                }
-                System.out.println("Student: " + s.name + " | Current semester: " + s.currentSemester);
-                System.out.print("Enter course code to assign grade: ");
-                String code = SchoolAPP.sc.nextLine();
-                System.out.print("Grade (A/B/C/D/F): ");
-                String grade = SchoolAPP.sc.nextLine().toUpperCase();
-                s.grades.put(code, grade);
-                s.enrolledCourses.remove(code);
-                System.out.println("Grade assigned. Semester progress updated.");
-            }
-            default -> {
+
+            String code = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Select Course to Delete:",
+                    "Delete Course",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    codes.toArray(),
+                    codes.get(0)
+            );
+
+            if (code != null) {
+                SchoolAPP.courses.removeIf(c -> c.courseCode.equalsIgnoreCase(code));
+                JOptionPane.showMessageDialog(null, "Deleted Successfully!");
             }
         }
     }
+}
 
+   private void manageStudentRecords() {
+
+    String[] options = {
+            "View All Students",
+            "Update Student Personal Info",
+            "Update Student Grades"
+    };
+
+    String choice = (String) JOptionPane.showInputDialog(
+            null,
+            "Manage Student Records",
+            "Student Records",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            options,
+            options[0]
+    );
+
+    if (choice == null) return;
+
+    switch (choice) {
+
+        case "View All Students" -> {
+            StringBuilder sb = new StringBuilder();
+
+            for (Student s : SchoolAPP.students) {
+                sb.append(s.id).append(" | ")
+                  .append(s.name).append(" | ")
+                  .append(s.email).append(" | Semester ")
+                  .append(s.currentSemester).append("\n");
+            }
+
+            JOptionPane.showMessageDialog(null, sb.toString());
+        }
+
+        case "Update Student Personal Info" -> {
+            String sid = JOptionPane.showInputDialog("Enter Student ID:");
+
+            Student s = SchoolAPP.findStudentById(sid);
+
+            if (s == null) {
+                JOptionPane.showMessageDialog(null, "Student Not Found!");
+                return;
+            }
+
+            String newName = JOptionPane.showInputDialog("New Name:", s.name);
+            String newEmail = JOptionPane.showInputDialog("New Email:", s.email);
+
+            if (newName != null && !newName.isEmpty()) s.name = newName;
+            if (newEmail != null && !newEmail.isEmpty()) s.email = newEmail;
+
+            JOptionPane.showMessageDialog(null, "Updated Successfully!");
+        }
+
+        case "Update Student Grades" -> {
+            String sid = JOptionPane.showInputDialog("Enter Student ID:");
+
+            Student s = SchoolAPP.findStudentById(sid);
+
+            if (s == null) {
+                JOptionPane.showMessageDialog(null, "Student Not Found!");
+                return;
+            }
+
+            String code = JOptionPane.showInputDialog("Course Code:");
+            String grade = JOptionPane.showInputDialog("Grade (A/B/C/D/F):");
+
+            s.grades.put(code.toUpperCase(), grade.toUpperCase());
+            s.enrolledCourses.remove(code.toUpperCase());
+
+            JOptionPane.showMessageDialog(null, "Grade Updated!");
+        }
+    }
+}
     // Add professor for the specific course
-    private void manageProfessors() {
+private void manageProfessors() {
 
-        System.out.println("Available courses:");
+    ArrayList<String> coursesList = new ArrayList<>();
 
-        for (Course c : SchoolAPP.courses) {
-            System.out.println(c.courseCode + " | " + c.title);
-        }
-
-        System.out.print("Course code: ");
-        String code = SchoolAPP.sc.nextLine();
-
-        Course c = SchoolAPP.findCourse(code);
-        if (c == null) {
-            return;
-        }
-
-        System.out.println("Available professors:");
-
-        for (Professor p : SchoolAPP.professors) {
-            System.out.println(p.id + " | " + p.name);
-        }
-
-        System.out.print("Professor ID to assign: ");
-        String pid = SchoolAPP.sc.nextLine();
-        if (SchoolAPP.findProfessorById(pid) != null) {
-            c.professorId = pid;
-            System.out.println("Professor assigned.");
-        }
+    for (Course c : SchoolAPP.courses) {
+        coursesList.add(c.courseCode);
     }
+
+    String code = (String) JOptionPane.showInputDialog(
+            null,
+            "Select Course:",
+            "Assign Professor",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            coursesList.toArray(),
+            coursesList.get(0)
+    );
+
+    if (code == null) return;
+
+    Course course = SchoolAPP.findCourse(code);
+
+    ArrayList<String> profList = new ArrayList<>();
+
+    for (Professor p : SchoolAPP.professors) {
+        profList.add(p.id + " - " + p.name);
+    }
+
+    String selectedProf = (String) JOptionPane.showInputDialog(
+            null,
+            "Select Professor:",
+            "Assign Professor",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            profList.toArray(),
+            profList.get(0)
+    );
+
+    if (selectedProf == null) return;
+
+    String pid = selectedProf.split(" - ")[0];
+
+    course.professorId = pid;
+
+    JOptionPane.showMessageDialog(null,
+            "Professor Assigned Successfully!");
+}
 
     // receive complaints
     private void manageComplaints() {
-        System.out.println("\n1. View All Complaints");
-        System.out.println("2. Filter by Status (Pending/Resolved)");
-        System.out.println("3. Update Complaint Status + Resolution");
-        System.out.print("Choose option: ");
-        int opt = SchoolAPP.sc.nextInt();
-        SchoolAPP.sc.nextLine();
 
-        switch (opt) {
-            case 1 -> {
-                System.out.println("\nAll Complaints:");
-                for (Complaint c : SchoolAPP.complaints) {
-                    System.out.println(c.id + " | Student " + c.studentId + " | " + c.description + " | Status: " + c.status);
-                }
-            }
-            case 2 -> {
-                System.out.print("Enter status to filter (Pending/Resolved): ");
-                String filter = SchoolAPP.sc.nextLine().trim();
-                System.out.println("\nFiltered Complaints:");
-                for (Complaint c : SchoolAPP.complaints) {
-                    if (c.status.equalsIgnoreCase(filter)) {
-                        System.out.println(c.id + " | Student " + c.studentId + " | " + c.description + " | Status: " + c.status);
-                    }
-                }
-            }
-            case 3 -> {
-                
-                System.out.println("\nAll Complaints:");
-                for (Complaint c : SchoolAPP.complaints) {
-                    System.out.println(c.id + " | Student " + c.studentId + " | " + c.description + " | Status: " + c.status);
-                }
+    String[] options = {
+            "View All Complaints",
+            "Filter by Status",
+            "Update Complaint Status"
+    };
 
-                System.out.print("Enter complaint ID to update: ");
-                String cid = SchoolAPP.sc.nextLine();
-                for (Complaint c : SchoolAPP.complaints) {
-                    if (c.id.equals(cid)) {
-                        System.out.print("New status (Pending/Resolved): ");
-                        c.status = SchoolAPP.sc.nextLine();
-                        System.out.print("Resolution: ");
-                        String resolution = SchoolAPP.sc.nextLine();
-                        System.out.println("Status updated with resolution: " + resolution);
-                        return;
-                    }
-                }
-                System.out.println("Complaint not found.");
+    String choice = (String) JOptionPane.showInputDialog(
+            null,
+            "Manage Complaints",
+            "Complaints",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            options,
+            options[0]
+    );
+
+    if (choice == null) return;
+
+    switch (choice) {
+
+        case "View All Complaints" -> {
+            StringBuilder sb = new StringBuilder();
+
+            for (Complaint c : SchoolAPP.complaints) {
+                sb.append(c.id)
+                  .append(" | Student ")
+                  .append(c.studentId)
+                  .append(" | ")
+                  .append(c.description)
+                  .append(" | ")
+                  .append(c.status)
+                  .append("\n");
             }
+
+            JOptionPane.showMessageDialog(null, sb.toString());
+        }
+
+        case "Filter by Status" -> {
+            String status = JOptionPane.showInputDialog(
+                    "Enter Status (Pending/Resolved):"
+            );
+
+            StringBuilder sb = new StringBuilder();
+
+            for (Complaint c : SchoolAPP.complaints) {
+                if (c.status.equalsIgnoreCase(status)) {
+                    sb.append(c.id)
+                      .append(" | ")
+                      .append(c.description)
+                      .append("\n");
+                }
+            }
+
+            JOptionPane.showMessageDialog(null, sb.toString());
+        }
+
+        case "Update Complaint Status" -> {
+            String cid = JOptionPane.showInputDialog("Complaint ID:");
+
+            for (Complaint c : SchoolAPP.complaints) {
+                if (c.id.equals(cid)) {
+
+                    String status = JOptionPane.showInputDialog("New Status:");
+                    c.status = status;
+
+                    JOptionPane.showMessageDialog(null,
+                            "Complaint Updated!");
+
+                    return;
+                }
+            }
+
+            JOptionPane.showMessageDialog(null,
+                    "Complaint Not Found!");
         }
     }
+}
 }

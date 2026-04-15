@@ -1,4 +1,8 @@
+import java.awt.*;
 import java.util.ArrayList;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class Professor extends User {
 
@@ -7,133 +11,222 @@ public class Professor extends User {
     }
 
     @Override
-    void showMenu() {
-        try {
-            while (true) {
-                
-                System.out.println("\nPROFESSOR MENU (" + name + ")");
-                System.out.println("1. Manage Courses (Update Details)");
-                System.out.println("2. View Enrolled Students");
-                System.out.println("3. Logout");
-                int choice = SchoolAPP.sc.nextInt();
-                SchoolAPP.sc.nextLine();
-                
-                SchoolAPP.clear();
-                SchoolAPP.wait(300);
+void showMenu() {
+    JFrame frame = new JFrame("Professor Menu");
+    frame.setSize(400, 300);
+    frame.setLayout(new GridLayout(4, 1, 10, 10));
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-                switch (choice) {
-                    case 1 -> manageCourses();
-                    case 2 -> viewEnrolledStudents();
-                    case 3 -> {
-                        SchoolAPP.currentUser = null;
-                        return;
-                    }
-                    default -> System.out.println("Invalid option.");
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Invalid input. Returning to menu.");
+    JButton b1 = new JButton("Manage Courses");
+    JButton b2 = new JButton("View Enrolled Students");
+    JButton b3 = new JButton("Logout");
+
+    b1.addActionListener(e -> manageCourses());
+    b2.addActionListener(e -> viewEnrolledStudents());
+
+    b3.addActionListener(e -> {
+        SchoolAPP.currentUser = null;
+        frame.dispose();
+    });
+
+    frame.add(b1);
+    frame.add(b2);
+    frame.add(b3);
+
+    frame.setVisible(true);
+}
+
+void manageCourses() {
+
+    ArrayList<Course> myCourses = new ArrayList<>();
+
+    for (Course c : SchoolAPP.courses) {
+        if (c.professorId.equals(id)) {
+            myCourses.add(c);
         }
     }
 
-    void manageCourses() {
-
-        SchoolAPP.clear();
-        SchoolAPP.wait(300);
-
-        System.out.println("\n Your Courses ");
-        for (Course c : SchoolAPP.courses) {
-            // iterates through all courses
-            if (c.professorId.equals(id)) {
-                System.out.println(c.courseCode + " | " + c.title);
-                System.out.print("Update this course? (y/n): ");
-                if (SchoolAPP.sc.nextLine().equalsIgnoreCase("y")) {
-                    updateCourse(c);
-                }
-            }
-        }
+    if (myCourses.isEmpty()) {
+        JOptionPane.showMessageDialog(null,
+                "You have no assigned courses.");
+        return;
     }
 
-    private void updateCourse(Course c) {
+    String[] options = new String[myCourses.size()];
 
-        SchoolAPP.clear();
-        SchoolAPP.wait(300);
-
-        while (true) {
-            System.out.println("\nUpdate Course: " + c.courseCode );
-            System.out.println("1. Syllabus");
-            System.out.println("2. Credits");
-            System.out.println("3. Prerequisites");
-            System.out.println("4. Enrollment Limit");
-            System.out.println("5. Office Hours");
-            System.out.println("6. Timings");
-            System.out.println("7. Location");
-            System.out.println("8. Done / Back");
-            System.out.print("Choose field to update: ");
-
-            int choice = SchoolAPP.sc.nextInt();
-            SchoolAPP.sc.nextLine();
-
-            switch (choice) {
-                case 1 -> {
-                    System.out.print("New Syllabus: ");
-                    c.syllabus = SchoolAPP.sc.nextLine();
-                }
-                case 2 -> {
-                    System.out.print("New Credits (2/4): ");
-                    c.credits = SchoolAPP.sc.nextInt();
-                    SchoolAPP.sc.nextLine();
-                }
-                case 3 -> {
-                    System.out.print("New Prerequisites seperate by commas: ");
-                    String preInput = SchoolAPP.sc.nextLine();
-                    c.prerequisites = new ArrayList<>(java.util.Arrays.asList(preInput.split(",")));
-                }
-                case 4 -> {
-                    System.out.print("New Enrollment Limit: ");
-                    c.enrollmentLimit = SchoolAPP.sc.nextInt();
-                    SchoolAPP.sc.nextLine();
-                }
-                case 5 -> {
-                    System.out.print("New Office Hours: ");
-                    c.officeHours = SchoolAPP.sc.nextLine();
-                }
-                case 6 -> {
-                    System.out.print("New Timings: ");
-                    c.timings = SchoolAPP.sc.nextLine();
-                }
-                case 7 -> {
-                    System.out.print("New Location: ");
-                    c.location = SchoolAPP.sc.nextLine();
-                }
-                case 8 -> {
-                    System.out.println("✅ Course updated successfully!");
-                    return;
-                }
-                default -> System.out.println("Invalid choice.");
-            }
-        }
+    for (int i = 0; i < myCourses.size(); i++) {
+        options[i] = myCourses.get(i).courseCode + " - " + myCourses.get(i).title;
     }
 
-    void viewEnrolledStudents() {
+    String selected = (String) JOptionPane.showInputDialog(
+            null,
+            "Select Course to Update:",
+            "Manage Courses",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            options,
+            options[0]
+    );
 
-        SchoolAPP.clear();
-        SchoolAPP.wait(300);
-        
-        System.out.println("\nEnrolled Students in Your Courses");
-        
-        for (Course c : SchoolAPP.courses) {
-            if (c.professorId.equals(id)) {
-                System.out.println("Course: " + c.courseCode);
-                boolean hasStudents = false;
-                for (Student s : SchoolAPP.students) {
-                    if (s.enrolledCourses.contains(c.courseCode)) {
-                        System.out.println("  - " + s.name + " (" + s.email + ") Semester: " + s.currentSemester);
-                        hasStudents = true;
+    if (selected == null) return;
+
+    String code = selected.split(" - ")[0];
+
+    for (Course c : myCourses) {
+        if (c.courseCode.equals(code)) {
+            updateCourse(c);
+            break;
+        }
+    }
+}
+
+private void updateCourse(Course c) {
+
+    while (true) {
+
+        String[] fields = {
+                "Syllabus",
+                "Credits",
+                "Prerequisites",
+                "Enrollment Limit",
+                "Office Hours",
+                "Timings",
+                "Location",
+                "Done / Back"
+        };
+
+        String choice = (String) JOptionPane.showInputDialog(
+                null,
+                "Update Course: " + c.courseCode,
+                "Course Update",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                fields,
+                fields[0]
+        );
+
+        if (choice == null || choice.equals("Done / Back")) {
+            JOptionPane.showMessageDialog(null,
+                    "Course Updated Successfully!");
+            return;
+        }
+
+        switch (choice) {
+
+            case "Syllabus" -> {
+                String input = JOptionPane.showInputDialog(
+                        "Enter New Syllabus:"
+                );
+                if (input != null) c.syllabus = input;
+            }
+
+            case "Credits" -> {
+                String input = JOptionPane.showInputDialog(
+                        "Enter New Credits:"
+                );
+                if (input != null) {
+                    try {
+                        c.credits = Integer.parseInt(input);
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(null,
+                                "Invalid Number!");
                     }
                 }
-                if (!hasStudents) System.out.println("  No students yet.");
+            }
+
+            case "Prerequisites" -> {
+                String input = JOptionPane.showInputDialog(
+                        "Enter Prerequisites (comma separated):"
+                );
+                if (input != null) {
+                    c.prerequisites = new ArrayList<>(
+                            java.util.Arrays.asList(input.split(","))
+                    );
+                }
+            }
+
+            case "Enrollment Limit" -> {
+                String input = JOptionPane.showInputDialog(
+                        "Enter Enrollment Limit:"
+                );
+                if (input != null) {
+                    try {
+                        c.enrollmentLimit = Integer.parseInt(input);
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(null,
+                                "Invalid Number!");
+                    }
+                }
+            }
+
+            case "Office Hours" -> {
+                String input = JOptionPane.showInputDialog(
+                        "Enter Office Hours:"
+                );
+                if (input != null) c.officeHours = input;
+            }
+
+            case "Timings" -> {
+                String input = JOptionPane.showInputDialog(
+                        "Enter New Timings:"
+                );
+                if (input != null) c.timings = input;
+            }
+
+            case "Location" -> {
+                String input = JOptionPane.showInputDialog(
+                        "Enter New Location:"
+                );
+                if (input != null) c.location = input;
             }
         }
     }
+}
+
+void viewEnrolledStudents() {
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("Enrolled Students In Your Courses\n\n");
+
+    boolean foundAny = false;
+
+    for (Course c : SchoolAPP.courses) {
+
+        if (c.professorId.equals(id)) {
+
+            sb.append("Course: ").append(c.courseCode).append("\n");
+
+            boolean hasStudents = false;
+
+            for (Student s : SchoolAPP.students) {
+
+                if (s.enrolledCourses.contains(c.courseCode)) {
+
+                    sb.append(" - ")
+                      .append(s.name)
+                      .append(" (")
+                      .append(s.email)
+                      .append(") Semester: ")
+                      .append(s.currentSemester)
+                      .append("\n");
+
+                    hasStudents = true;
+                    foundAny = true;
+                }
+            }
+
+            if (!hasStudents) {
+                sb.append(" No students yet.\n");
+            }
+
+            sb.append("\n");
+        }
+    }
+
+    if (!foundAny) {
+        sb.append("No students enrolled in your courses.");
+    }
+
+    JOptionPane.showMessageDialog(null, sb.toString());
+}
 }
